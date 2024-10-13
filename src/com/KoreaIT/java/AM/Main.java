@@ -5,11 +5,17 @@ import java.util.List;
 import java.util.Scanner;
 
 public class Main {
+
+  static List<Article> articles = new ArrayList<>();
+
   public static void main(String[] args) {
+
+    makeTestDate();
+
     Scanner sc = new Scanner(System.in);
 
-    int lastArticleId = 0;
-    List<Article> articles = new ArrayList<>();
+    int lastArticleId = 3;
+
 
     while (true) {
       System.out.printf("명령어 ) ");
@@ -136,6 +142,16 @@ public class Main {
         System.out.println("존재하지 않는 명령어입니다");
       }
     }
+  }
+
+  private static void makeTestDate() {
+
+    articles.add(new Article(1, test.getNowDateTimeStr(), test.getNowDateTimeStr(), "제목1", "내용1"));
+    articles.add(new Article(2, test.getNowDateTimeStr(), test.getNowDateTimeStr(), "제목2", "내용2"));
+    articles.add(new Article(3, test.getNowDateTimeStr(), test.getNowDateTimeStr(), "제목3", "내용3"));
+
+    System.out.println("테스트를 위한 데이터를 생성합니다");
+
   }
 }
 
