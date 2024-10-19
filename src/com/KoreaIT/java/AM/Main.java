@@ -5,22 +5,21 @@ import java.util.List;
 import java.util.Scanner;
 
 public class Main {
-
   static List<Article> articles = new ArrayList<>();
+  static List<Member> members = new ArrayList<>();
 
   public static void main(String[] args) {
 
-    makeTestDate();
+    makeTestData();
 
     Scanner sc = new Scanner(System.in);
 
     int lastArticleId = 3;
-
+    int lastMemberId = 0;
 
     while (true) {
       System.out.printf("명령어 ) ");
       String cmd = sc.nextLine().trim();
-
       if (cmd.length() == 0) {
         System.out.println("명령어를 입력하세요");
         continue;
@@ -31,7 +30,43 @@ public class Main {
         break;
       }
 
-      if (cmd.equals("article list")) {
+
+      if (cmd.equals("member join")) {
+        int id = lastMemberId + 1;
+        lastMemberId = id;
+
+        String regDate = test.getNowDateTimeStr();
+        String loginId = null;
+
+        while (true) {
+          System.out.printf("아이디 : ");
+          loginId = sc.nextLine();
+          if (isJoinableLoginId(loginId) == false) {
+            System.out.println("이미 가입된 아이디입니다");
+            continue;
+          }
+          break;
+        }
+        String password = null;
+        while (true) {
+          System.out.printf("비밀번호 : ");
+          password = sc.nextLine();
+          System.out.printf("비밀번호 확인 : ");
+          String passwordCk = sc.nextLine();
+          if (password.equals(passwordCk) == false) {
+            System.out.println("비밀번호가 일치하지 않습니다");
+            continue;
+          }
+          break;
+        }
+        System.out.printf("이름 : ");
+        String name = sc.nextLine();
+
+        Member member = new Member(id, regDate, loginId, password, name);
+        members.add(member);
+
+        System.out.printf("%s님 회원이 가입되었습니다\n", name);
+      } else if (cmd.equals("article list")) {
         if (articles.size() == 0) {
           System.out.println("게시글이 없습니다");
           continue;
@@ -41,27 +76,27 @@ public class Main {
           Article article = articles.get(i);
           System.out.printf("%d  |  %s\n", article.id, article.title);
         }
+
       } else if (cmd.equals("article write")) {
         int id = lastArticleId + 1;
         lastArticleId = id;
+
         String regDate = test.getNowDateTimeStr();
-        String regUpdate = test.getNowDateTimeStr();
+        String updateDate = test.getNowDateTimeStr();
 
         System.out.printf("제목 : ");
         String title = sc.nextLine();
         System.out.printf("내용 : ");
         String body = sc.nextLine();
 
-        Article article = new Article(id, regDate, regUpdate, title, body);
+        Article article = new Article(id, regDate, updateDate, title, body);
         articles.add(article);
 
         System.out.printf("%d번 글이 생성되었습니다\n", id);
-
       } else if (cmd.startsWith("article detail ")) {
 
         String[] cmdDiv = cmd.split(" ");
 
-        // article detail 1 => "1" -> 1
         int id = Integer.parseInt(cmdDiv[2]);
 
         Article foundArticle = null;
@@ -73,16 +108,15 @@ public class Main {
             break;
           }
         }
-
         if (foundArticle == null) {
-          System.out.printf("%d번 게시글은 없습니다\n", id);
+          System.out.printf("%d번 게시글은 없습니다.\n", id);
           continue;
         }
-        System.out.printf("번호 : %d\n", foundArticle.id);
-        System.out.printf("작성 날짜 : %s\n", foundArticle.regDate);
-        System.out.printf("수정 날짜 : %s\n", foundArticle.regUpdate);
-        System.out.printf("제목 : %s\n", foundArticle.title);
-        System.out.printf("내용 : %s\n", foundArticle.body);
+        System.out.println("번호 : " + foundArticle.id);
+        System.out.println("작성 날짜 : " + foundArticle.regDate);
+        System.out.println("수정 날짜 : " + foundArticle.updateDate);
+        System.out.println("제목 : " + foundArticle.title);
+        System.out.println("내용 : " + foundArticle.body);
 
       } else if (cmd.startsWith("article delete ")) {
 
@@ -99,13 +133,13 @@ public class Main {
             break;
           }
         }
-
         if (foundArticle == null) {
-          System.out.printf("%d번 게시글은 없습니다\n", id);
+          System.out.printf("%d번 게시글은 없습니다.\n", id);
           continue;
         }
         articles.remove(foundArticle);
-        System.out.printf("%d번 게시글이 삭제되었습니다\n", id);
+        System.out.println(id + "번 게시글이 삭제되었습니다.");
+
 
       } else if (cmd.startsWith("article modify ")) {
 
@@ -122,21 +156,23 @@ public class Main {
             break;
           }
         }
-
         if (foundArticle == null) {
-          System.out.printf("%d번 게시글은 없습니다\n", id);
+          System.out.printf("%d번 게시글은 없습니다.\n", id);
           continue;
         }
         System.out.println("기존 제목 : " + foundArticle.title);
         System.out.println("기존 내용 : " + foundArticle.body);
+        System.out.print("새 제목 : ");
+        String newTitle = sc.nextLine();
+        System.out.print("새 내용 : ");
+        String newBody = sc.nextLine();
 
-        System.out.printf("새 제목 : ");
-        foundArticle.title = sc.nextLine();
-        System.out.printf("새 내용 : ");
-        foundArticle.body = sc.nextLine();
-        foundArticle.regUpdate = test.getNowDateTimeStr();
+        foundArticle.title = newTitle;
+        foundArticle.body = newBody;
+        foundArticle.updateDate = test.getNowDateTimeStr();
 
-        System.out.printf("%d번 게시글이 수정되었습니다\n", id);
+        System.out.println(id + "번 게시글이 수정되었습니다.");
+
 
       } else {
         System.out.println("존재하지 않는 명령어입니다");
@@ -144,30 +180,54 @@ public class Main {
     }
   }
 
-  private static void makeTestDate() {
+  private static boolean isJoinableLoginId(String loginId) {
+    for (int i = 0; i < members.size(); i++) {
+      Member member = members.get(i);
+      if (member.loginId.equals(loginId)) {
+        return false;
+      }
+    }
+    return true;
+  }
 
-    articles.add(new Article(1, test.getNowDateTimeStr(), test.getNowDateTimeStr(), "제목1", "내용1"));
-    articles.add(new Article(2, test.getNowDateTimeStr(), test.getNowDateTimeStr(), "제목2", "내용2"));
-    articles.add(new Article(3, test.getNowDateTimeStr(), test.getNowDateTimeStr(), "제목3", "내용3"));
-
-    System.out.println("테스트를 위한 데이터를 생성합니다");
-
+  private static void makeTestData() {
+    System.out.println("테스트를 위한 데이터를 생성합니다.");
+    articles.add(new Article(1, "2024-12-12 12:12:12", test.getNowDateTimeStr(), "제목 1", "내용 1"));
+    articles.add(new Article(2, test.getNowDateTimeStr(), test.getNowDateTimeStr(), "제목 2", "내용 2"));
+    articles.add(new Article(3, test.getNowDateTimeStr(), test.getNowDateTimeStr(), "제목 3", "내용 3"));
   }
 }
+
 
 class Article {
   int id;
   String regDate;
-  String regUpdate;
+  String updateDate;
   String title;
   String body;
 
-  // 생성자
-  public Article(int id, String regDate, String regUpdate, String title, String body) {
+  public Article(int id, String regDate, String updateDate, String title, String body) {
     this.id = id;
     this.regDate = regDate;
-    this.regUpdate = regUpdate;
+    this.updateDate = updateDate;
     this.title = title;
     this.body = body;
+  }
+}
+
+class Member {
+  int id;
+  String regDate;
+
+  String loginId;
+  String password;
+  String name;
+
+  public Member(int id, String regDate, String loginId, String password, String name) {
+    this.id = id;
+    this.regDate = regDate;
+    this.loginId = loginId;
+    this.password = password;
+    this.name = name;
   }
 }
