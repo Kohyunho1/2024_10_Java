@@ -28,6 +28,7 @@ public class App {
     ArticleController articleController = new ArticleController(sc);
 
     articleController.makeTestData();
+    memberController.makeTestData();
 
     while (true) {
 
@@ -46,6 +47,10 @@ public class App {
 
       if (cmd.equals("member join")) {
         memberController.dojoin();
+      } else if (cmd.equals("member login")) {
+        memberController.doLogin();
+      } else if (cmd.equals("member logout")) {
+        memberController.doLogout();
       } else if (cmd.equals("article list")) {
         articleController.showList();
       } else if (cmd.equals("article write")) {
